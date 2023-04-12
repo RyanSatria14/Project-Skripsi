@@ -50,7 +50,7 @@ CREATE TABLE `complaint_suggestions` (
   PRIMARY KEY (`id`),
   KEY `complaint_suggestions_user_id_foreign` (`user_id`),
   CONSTRAINT `complaint_suggestions_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `complaint_suggestions` */
 
@@ -81,7 +81,7 @@ CREATE TABLE `items` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `items_name_unique` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `items` */
 
@@ -119,6 +119,23 @@ insert  into `migrations`(`id`,`migration`,`batch`) values
 (14,'2022_08_16_091616_add_service_type_to_transactions',1),
 (15,'2022_08_19_140133_add_payment_amount_transaction',1);
 
+/*Table structure for table `notifications` */
+
+DROP TABLE IF EXISTS `notifications`;
+
+CREATE TABLE `notifications` (
+  `id` int(15) NOT NULL AUTO_INCREMENT,
+  `jd` text DEFAULT NULL,
+  `ket` text DEFAULT NULL,
+  `read` enum('N','Y') NOT NULL,
+  `untuk` varchar(35) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4;
+
+/*Data for the table `notifications` */
+
 /*Table structure for table `price_lists` */
 
 DROP TABLE IF EXISTS `price_lists`;
@@ -138,19 +155,15 @@ CREATE TABLE `price_lists` (
   CONSTRAINT `price_lists_category_id_foreign` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`),
   CONSTRAINT `price_lists_item_id_foreign` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`),
   CONSTRAINT `price_lists_service_id_foreign` FOREIGN KEY (`service_id`) REFERENCES `services` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `price_lists` */
 
 insert  into `price_lists`(`id`,`item_id`,`category_id`,`service_id`,`price`,`created_at`,`updated_at`) values 
-(1,1,1,1,1000,'2022-10-25 22:29:18','2022-11-20 11:54:41'),
-(2,2,1,1,2000,'2022-10-25 23:09:57','2022-11-20 11:55:00'),
-(3,1,2,1,5000,'2022-10-25 23:41:35','2022-11-20 11:53:57'),
-(4,2,2,1,10000,'2022-10-25 23:41:51','2022-11-20 11:54:08'),
-(5,1,2,2,7000,'2022-10-25 23:42:08','2022-11-20 11:54:21'),
-(6,2,2,2,15000,'2022-10-25 23:42:28','2022-11-20 11:54:32'),
-(7,1,1,2,2000,'2022-10-25 23:42:57','2022-11-20 11:55:11'),
-(8,2,1,2,4000,'2022-10-25 23:43:21','2022-11-20 11:55:25');
+(12,1,1,1,1000,'2023-04-09 11:07:14','2023-04-09 11:07:14'),
+(15,1,2,1,5000,'2023-04-09 11:13:32','2023-04-09 11:13:32'),
+(16,1,2,2,6000,'2023-04-09 11:15:28','2023-04-09 11:15:28'),
+(17,1,1,2,2000,'2023-04-09 11:15:58','2023-04-09 11:16:12');
 
 /*Table structure for table `service_types` */
 
@@ -183,7 +196,7 @@ CREATE TABLE `services` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `services_name_unique` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `services` */
 
@@ -229,13 +242,9 @@ CREATE TABLE `transaction_details` (
   KEY `transaction_details_price_list_id_foreign` (`price_list_id`),
   CONSTRAINT `transaction_details_price_list_id_foreign` FOREIGN KEY (`price_list_id`) REFERENCES `price_lists` (`id`),
   CONSTRAINT `transaction_details_transaction_id_foreign` FOREIGN KEY (`transaction_id`) REFERENCES `transactions` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `transaction_details` */
-
-insert  into `transaction_details`(`id`,`transaction_id`,`price_list_id`,`quantity`,`price`,`sub_total`,`created_at`,`updated_at`) values 
-(1,7,1,1,5000,5000,'2022-10-26 07:59:50','2022-10-26 07:59:50'),
-(2,8,1,2,1000,2000,'2023-01-18 13:16:22','2023-01-18 13:16:22');
 
 /*Table structure for table `transactions` */
 
@@ -263,13 +272,9 @@ CREATE TABLE `transactions` (
   CONSTRAINT `transactions_member_id_foreign` FOREIGN KEY (`member_id`) REFERENCES `users` (`id`),
   CONSTRAINT `transactions_service_type_id_foreign` FOREIGN KEY (`service_type_id`) REFERENCES `service_types` (`id`),
   CONSTRAINT `transactions_status_id_foreign` FOREIGN KEY (`status_id`) REFERENCES `statuses` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `transactions` */
-
-insert  into `transactions`(`id`,`status_id`,`service_type_id`,`admin_id`,`member_id`,`finish_date`,`service_cost`,`discount`,`total`,`created_at`,`updated_at`,`payment_amount`) values 
-(7,3,2,1,2,'2022-10-26 08:00:41',0,0,5000,'2022-10-26 07:59:50','2022-10-26 08:00:41',5000),
-(8,1,2,1,2,NULL,0,0,2000,'2023-01-18 13:16:22','2023-02-03 12:13:01',2000);
 
 /*Table structure for table `user_vouchers` */
 
@@ -287,9 +292,12 @@ CREATE TABLE `user_vouchers` (
   KEY `user_vouchers_user_id_foreign` (`user_id`),
   CONSTRAINT `user_vouchers_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
   CONSTRAINT `user_vouchers_voucher_id_foreign` FOREIGN KEY (`voucher_id`) REFERENCES `vouchers` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `user_vouchers` */
+
+insert  into `user_vouchers`(`id`,`voucher_id`,`user_id`,`used`,`created_at`,`updated_at`) values 
+(1,2,2,1,'2023-04-09 09:51:39','2023-04-09 09:52:53');
 
 /*Table structure for table `users` */
 
@@ -312,13 +320,13 @@ CREATE TABLE `users` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_email_unique` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `users` */
 
 insert  into `users`(`id`,`name`,`email`,`email_verified_at`,`password`,`role`,`gender`,`address`,`phone_number`,`profile_picture`,`point`,`remember_token`,`created_at`,`updated_at`) values 
-(1,'Admin','admin@admin.com','0000-00-00 00:00:00','$2y$10$kJgreyqkdNAykNTjqs8dGuEHwtWrkJbW51RQkDiaTo.GA9iPtQQvK',1,'L','Jl.cinta','089632836213','default.jpg',0,NULL,NULL,NULL),
-(2,'Ryan Satria','ryansatria630@gmail.com',NULL,'$2y$10$kJgreyqkdNAykNTjqs8dGuEHwtWrkJbW51RQkDiaTo.GA9iPtQQvK',2,'L','Jl. jalan- jalan','089632836213','2.jpeg',2,NULL,'2022-10-25 21:17:51','2023-01-18 13:16:22');
+(1,'Admin','admin@admin.com','0000-00-00 00:00:00','$2a$12$lfXB8p4FBDymA0NwFwiwe.8vE7PrZfA7l.fsz054cgAgt1FLGUebq',1,'L','Jl.cinta','089632836213','1.jpg',0,NULL,NULL,'2023-04-09 09:37:33'),
+(2,'Ryan Satria','ryansatria630@gmail.com',NULL,'$2y$10$kJgreyqkdNAykNTjqs8dGuEHwtWrkJbW51RQkDiaTo.GA9iPtQQvK',2,'L','Jl. jalan- jalan','089632836213','2.jpg',3,NULL,'2022-10-25 21:17:51','2023-04-09 11:52:27');
 
 /*Table structure for table `vouchers` */
 
@@ -334,9 +342,12 @@ CREATE TABLE `vouchers` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `vouchers` */
+
+insert  into `vouchers`(`id`,`name`,`discount_value`,`point_need`,`active_status`,`description`,`created_at`,`updated_at`) values 
+(2,'Potongan 2.000',2000,2,1,'Mendapatkan potongan harga 2.000 dari total transaksi','2023-04-09 09:50:25','2023-04-09 11:48:43');
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
