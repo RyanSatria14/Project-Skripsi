@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\Notifikasi;
 
 class LoginController extends Controller
 {
@@ -79,6 +80,15 @@ class LoginController extends Controller
         ]);
 
         $user->save();
+
+         $notif = new Notifikasi([
+            'jd' => "Ada pengguna baru yang mendaftar",
+            'ket' => "Ada pengguna baru mendaftar dengan nama <b>".$request->input('name')."</b>",
+            'read'=>'N',
+            'untuk'=>'admin',
+        ]);
+
+        $notif->save();
 
         return redirect('login')->with('success', Lang::get('auth.register_success'));
     }
