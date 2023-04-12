@@ -20,6 +20,10 @@ Route::get('/', function () {
     return view('landing');
 })->middleware('language');
 
+Route::get('/validasi', function () {
+    return view('validasi');
+})->middleware('language');
+
 // Auth routes
 Route::group(['middleware' => 'language'], function () {
     Route::get('login', 'LoginController@index')->middleware('islogin');
@@ -43,15 +47,25 @@ Route::group(['prefix' => 'admin', 'middleware' => ['language', 'islogin']], fun
     Route::post('ambil-detail-transaksi', 'Admin@ambilDetailTransaksi');
     Route::post('ubah-status-transaksi', 'Admin@ubahStatusTransaksi');
     Route::get('transaksi', 'Admin@riwayatTransaksi');
+    Route::post('/transaksi/priority', 'Admin@getTransaksiPriority')->name('a.transaksi.priority');
+    Route::post('/transaksi/berjalan', 'Admin@getTransaksiBerjalan')->name('a.transaksi.berjalan');
+    Route::post('/transaksi/selesai', 'Admin@getTransaksiSelesai')->name('a.transaksi.selesai');
     Route::get('cetak-transaksi/{id}', 'Admin@cetakTransaksi');
     Route::get('harga', 'Admin@harga');
+    Route::post('/get/kiloan', 'Admin@getDataKiloan')->name('a.kiloan.list');
+    Route::post('/get/satuan', 'Admin@getDataSatuan')->name('a.satuan.list');
+    Route::post('/get/service', 'Admin@getDataService')->name('a.service.list');
     Route::post('ambil-harga', 'Admin@ambilHarga');
     Route::post('tambah-harga', 'Admin@tambahHarga');
     Route::post('ubah-harga', 'Admin@ubahHarga');
     Route::post('tambah-barang', 'Admin@tambahBarang');
     Route::post('tambah-servis', 'Admin@tambahServis');
     Route::get('members', 'Admin@members');
+    Route::post('/members/list', 'Admin@getDataMembers')->name('a.member.list');
     Route::get('voucher', 'Admin@voucher');
+    Route::post('/voucher/list', 'Admin@getDataVoucher')->name('a.voucher.list');
+    Route::get('notifikasi', 'Admin@notifikasi');
+    Route::post('detail-notifikasi', 'Admin@detailNotifikasi');
     Route::post('voucher/tambah', 'Admin@tambahVoucher');
     Route::post('voucher/ubahaktif', 'Admin@ubahAktifVoucher');
     Route::get('saran', 'Admin@saran');
@@ -71,12 +85,18 @@ Route::group(['prefix' => 'admin', 'middleware' => ['language', 'islogin']], fun
 Route::group(['prefix' => 'member', 'middleware' => ['language', 'islogin']], function () {
     Route::get('/', 'Member@index');
     Route::get('harga', 'Member@harga');
+    Route::post('/get/kiloan', 'Member@getDataKiloan')->name('m.kiloan.list');
+    Route::post('/get/satuan', 'Member@getDataSatuan')->name('m.satuan.list');
+    Route::post('/get/service', 'Member@getDataService')->name('m.service.list');
     Route::get('poin', 'Member@poin');
     Route::get('poin/tukar/{id_voucher}', 'Member@tukarPoin');
     Route::get('transaksi', 'Member@riwayatTransaksi');
+    Route::post('/get/transaksi', 'Member@getTransaksi')->name('m.transaksi.list');
     Route::get('transaksi/{id_transaksi}', 'Member@detailTransaksi');
     Route::get('saran', 'Member@saranKomplain');
     Route::post('kirimsaran', 'Member@kirimSaranKomplain');
+    Route::get('notifikasi', 'Member@notifikasi');
+    Route::post('detail-notifikasi', 'Member@detailNotifikasi');
 });
 
 // User profile routes
