@@ -15,10 +15,12 @@ use App\Models\TransactionDetail;
 use App\Models\User;
 use App\Models\UserVoucher;
 use App\Models\Voucher;
+use App\Models\Notifikasi;
 use PDF;
 use DateTime;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use DataTables;
 
 class Admin extends Controller
 {
@@ -264,6 +266,15 @@ class Admin extends Controller
         $request->session()->forget('transaksi');
         $request->session()->forget('id_member_transaksi');
 
+        $notif = new Notifikasi([
+            'jd' => "Berhasil menambahkan transaksi baru",
+            'ket' => "Terdapat penambahan transaksi baru dengan ID member ".$id_member." dan total harga <b>".$total_harga."</b>",
+            'read'=>'N',
+            'untuk'=>'admin',
+        ]);
+
+        $notif->save();
+
         DB::commit();
         return redirect('admin/input-transaksi')->with('success', 'Transaksi berhasil disimpan')->with('id_trs', $transaction->id);
     }
@@ -323,6 +334,328 @@ class Admin extends Controller
         return view('admin.riwayat_transaksi', compact('user', 'status', 'tahun', 'year', 'month', 'ongoing_transaction', 'ongoing_priority_transaction', 'finished_transaction'));
     }
 
+    public function getTransaksiPriority(Request $request)
+    {
+
+    $month = date('m');
+    $year = date('Y');
+    $monthQuery = $request->get('month');
+    $yearQuery = $request->get('year');
+
+    if ($monthQuery && $yearQuery) {
+        $month = $monthQuery;
+        $year = $yearQuery;
+    }
+
+    $columns = array( 
+                0 =>'id', 
+                1 =>'created_at', 
+                2 =>'nm_member',
+                3 =>'stt',
+                4 =>'service_cost',
+                5 =>'total',
+                6 => 'aksi',
+            );
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        $search = $request->input('search.value');
+  
+        $totalData = Transaction::select('transactions.*','users.name as nm_member')->join('users','users.id','transactions.member_id')->whereYear('transactions.created_at', $year)
+                    ->whereMonth('transactions.created_at', $month)
+                    ->where('transactions.service_type_id', 2)
+                    ->where('transactions.finish_date', null)->count();
+
+
+        $query_data =Transaction::select('transactions.*','users.name as nm_member')->join('users','users.id','transactions.member_id')->whereYear('transactions.created_at', $year)
+                    ->whereMonth('transactions.created_at', $month)
+                    ->where('transactions.service_type_id', 2)
+                    ->where('transactions.finish_date', null)
+                    ->where(function($query) use ($search)
+                    {
+                        if(!empty($search)){
+                            $query->where('transactions.id','LIKE',"%{$search}%")
+                              ->orWhere('transactions.created_at', 'LIKE',"%{$search}%")
+                              ->orWhere('users.name', 'LIKE',"%{$search}%")
+                              ->orWhere('transactions.service_cost', 'LIKE',"%{$search}%")
+                              ->orWhere('transactions.total', 'LIKE',"%{$search}%");
+                        }
+                        
+                    });
+
+        $all_data=$query_data->offset($start)->limit($limit)->orderBy($order,$dir)->get();
+
+        $totalFiltered = $query_data->count();
+
+        $data = array();
+        $status = Status::all();
+       
+        $no=1;
+        if(!empty($all_data))
+        {
+            foreach ($all_data as $row)
+            {
+                $btn="";
+                $btn.='<a href="#" class="badge badge-info btn-detail" data-toggle="modal" data-target="#detailTransaksiModal" data-id="'.$row->id.'">Detail</a>';
+                $btn.=' <a href="'.url('admin/cetak-transaksi') . '/' . $row->id.'" class="badge badge-primary" target="_blank">Cetak</a>';
+
+                $stt="";
+
+                if ($row->status_id == 3){
+                    $stt.='<span class="text-success">Selesai</span>';
+                }else{
+                    $stt.='<select name="" id="status" data-id="'.$row->id.'"
+                        data-val="'.$row->status_id.'" class="select-status">';
+                        foreach ($status as $s){
+                            if($row->status_id == $s->id){
+                                $stt.='<option selected value="'.$s->id.'">'.$s->name.'</option>';
+                            }else{
+                                $stt.='<option value="'.$s->id.'">'.$s->name.'</option>';
+                            }
+                        }
+                    $stt.='</select>';
+                 }
+                   
+       $nestedData['no'] = $no++;
+                $nestedData['id'] = $row->id;
+                $nestedData['created_at'] = date('d/m/Y',strtotime($row->created_at));
+                $nestedData['nm_member'] = $row->nm_member;
+                $nestedData['stt'] = $stt;
+                $nestedData['service_cost'] = 'Rp.'.number_format($row->service_cost, 0, ',', '.');
+                $nestedData['total'] = 'Rp.'.number_format($row->total, 0, ',', '.');
+                $nestedData['aksi'] = $btn;
+                $data[] = $nestedData;
+
+            }
+        }
+          
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+            
+        return json_encode($json_data);
+    }
+
+    public function getTransaksiBerjalan(Request $request)
+    {
+
+    $month = date('m');
+    $year = date('Y');
+    $monthQuery = $request->get('month');
+    $yearQuery = $request->get('year');
+
+    if ($monthQuery && $yearQuery) {
+        $month = $monthQuery;
+        $year = $yearQuery;
+    }
+
+    $columns = array( 
+                0 =>'id', 
+                1 =>'created_at', 
+                2 =>'nm_member',
+                3 =>'stt',
+                4 =>'service_cost',
+                5 =>'total',
+                6 => 'aksi',
+            );
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        $search = $request->input('search.value');
+  
+        $totalData = Transaction::select('transactions.*','users.name as nm_member')->join('users','users.id','transactions.member_id')->whereYear('transactions.created_at', $year)
+                    ->whereMonth('transactions.created_at', $month)
+                    ->where('transactions.service_type_id', 1)
+                    ->where('transactions.finish_date', null)->count();
+
+
+        $query_data =Transaction::select('transactions.*','users.name as nm_member')->join('users','users.id','transactions.member_id')->whereYear('transactions.created_at', $year)
+                    ->whereMonth('transactions.created_at', $month)
+                    ->where('transactions.service_type_id', 1)
+                    ->where('transactions.finish_date', null)
+                    ->where(function($query) use ($search)
+                    {
+                        if(!empty($search)){
+                            $query->where('transactions.id','LIKE',"%{$search}%")
+                              ->orWhere('transactions.created_at', 'LIKE',"%{$search}%")
+                              ->orWhere('users.name', 'LIKE',"%{$search}%")
+                              ->orWhere('transactions.service_cost', 'LIKE',"%{$search}%")
+                              ->orWhere('transactions.total', 'LIKE',"%{$search}%");
+                        }
+                        
+                    });
+
+        $all_data=$query_data->offset($start)->limit($limit)->orderBy($order,$dir)->get();
+
+        $totalFiltered = $query_data->count();
+
+        $data = array();
+        $status = Status::all();
+       
+        $no=1;
+
+        if(!empty($all_data))
+        {
+            foreach ($all_data as $row)
+            {
+                $btn="";
+                $btn.='<a href="#" class="badge badge-info btn-detail" data-toggle="modal" data-target="#detailTransaksiModal" data-id="'.$row->id.'">Detail</a>';
+                $btn.=' <a href="'.url('admin/cetak-transaksi') . '/' . $row->id.'" class="badge badge-primary" target="_blank">Cetak</a>';
+
+                $stt="";
+
+                 $stt="";
+
+                if ($row->status_id == 3){
+                    $stt.='<span class="text-success">Selesai</span>';
+                }else{
+                    $stt.='<select name="" id="status" data-id="'.$row->id.'"
+                        data-val="'.$row->status_id.'" class="select-status">';
+                        foreach ($status as $s){
+                            if($row->status_id == $s->id){
+                                $stt.='<option selected value="'.$s->id.'">'.$s->name.'</option>';
+                            }else{
+                                $stt.='<option value="'.$s->id.'">'.$s->name.'</option>';
+                            }
+                        }
+                    $stt.='</select>';
+                 }
+                   
+                $nestedData['no'] = $no++;
+                $nestedData['id'] = $row->id;
+                $nestedData['created_at'] = date('d/m/Y',strtotime($row->created_at));
+                $nestedData['nm_member'] = $row->nm_member;
+                $nestedData['stt'] = $stt;
+                $nestedData['service_cost'] = 'Rp.'.number_format($row->service_cost, 0, ',', '.');
+                $nestedData['total'] = 'Rp.'.number_format($row->total, 0, ',', '.');
+                $nestedData['aksi'] = $btn;
+                $data[] = $nestedData;
+
+            }
+        }
+          
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+            
+        return json_encode($json_data);
+    }
+
+    public function getTransaksiSelesai(Request $request)
+    {
+
+    $month = date('m');
+    $year = date('Y');
+    $monthQuery = $request->get('month');
+    $yearQuery = $request->get('year');
+
+    if ($monthQuery && $yearQuery) {
+        $month = $monthQuery;
+        $year = $yearQuery;
+    }
+
+    $columns = array( 
+                0 =>'id', 
+                1 =>'created_at', 
+                2 =>'nm_member',
+                3 =>'stt',
+                4 =>'service_cost',
+                5 =>'total',
+                6 => 'aksi',
+            );
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        $search = $request->input('search.value');
+  
+        $totalData = Transaction::select('transactions.*','users.name as nm_member')->join('users','users.id','transactions.member_id')->whereYear('transactions.created_at', $year)
+                    ->whereMonth('transactions.created_at', $month)
+                    ->where('transactions.finish_date', '!=', null)->count();
+
+
+        $query_data =Transaction::select('transactions.*','users.name as nm_member')->join('users','users.id','transactions.member_id')->whereYear('transactions.created_at', $year)
+                    ->whereMonth('transactions.created_at', $month)
+                    ->where('transactions.finish_date', '!=', null)
+                    ->where(function($query) use ($search)
+                    {
+                        if(!empty($search)){
+                            $query->where('transactions.id','LIKE',"%{$search}%")
+                              ->orWhere('transactions.created_at', 'LIKE',"%{$search}%")
+                              ->orWhere('users.name', 'LIKE',"%{$search}%")
+                              ->orWhere('transactions.service_cost', 'LIKE',"%{$search}%")
+                              ->orWhere('transactions.total', 'LIKE',"%{$search}%");
+                        }
+                        
+                    });
+
+        $all_data=$query_data->offset($start)->limit($limit)->orderBy($order,$dir)->get();
+
+        $totalFiltered = $query_data->count();
+
+        $data = array();
+        $status = Status::all();
+       
+        $no=1;
+        if(!empty($all_data))
+        {
+            foreach ($all_data as $row)
+            {
+                $btn="";
+                $btn.='<a href="#" class="badge badge-info btn-detail" data-toggle="modal" data-target="#detailTransaksiModal" data-id="'.$row->id.'">Detail</a>';
+                $btn.=' <a href="'.url('admin/cetak-transaksi') . '/' . $row->id.'" class="badge badge-primary" target="_blank">Cetak</a>';
+
+                $stt="";
+
+                if ($row->status_id == 3){
+                    $stt.='<span class="text-success">Selesai</span>';
+                }else{
+                    $stt.='<select name="" id="status" data-id="'.$row->id.'"
+                        data-val="'.$row->status_id.'" class="select-status">';
+                        foreach ($status as $s){
+                            if($row->status_id == $s->id){
+                                $stt.='<option selected value="'.$s->id.'">'.$s->name.'</option>';
+                            }else{
+                                $stt.='<option value="'.$s->id.'">'.$s->name.'</option>';
+                            }
+                        }
+                    $stt.='</select>';
+                 }
+                   
+                $nestedData['no'] = $no++;
+                $nestedData['id'] = $row->id;
+                $nestedData['created_at'] = date('d/m/Y',strtotime($row->created_at));
+                $nestedData['nm_member'] = $row->nm_member;
+                $nestedData['stt'] = $stt;
+                $nestedData['service_cost'] = 'Rp.'.number_format($row->service_cost, 0, ',', '.');
+                $nestedData['total'] = 'Rp.'.number_format($row->total, 0, ',', '.');
+                $nestedData['aksi'] = $btn;
+                $data[] = $nestedData;
+
+            }
+        }
+          
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+            
+        return json_encode($json_data);
+    }
+
     /**
      * Fungsi untuk mengambil detail transaksi dari ajax
      */
@@ -347,6 +680,17 @@ class Admin extends Controller
         $transaction->status_id = $request->input('val');
         $transaction->finish_date = $tgl;
         $transaction->save();
+
+        if($request->input('val')=='3'){
+           $notif = new Notifikasi([
+                'jd' => "Status Laundry anda sudah selesai",
+                'ket' => "Pakaian anda dengan nomor transaksi <b>".$request->input('id_transaksi')."</b> sudah bisa di ambil, silahkan datang ke toko untuk mengambil pakaian anda, Terimakasih.",
+                'read'=>'N',
+                'untuk'=>$transaction->member_id,
+            ]);
+
+            $notif->save();
+        }
     }
 
     /**
@@ -362,6 +706,209 @@ class Admin extends Controller
         $kategori = Category::all();
         $serviceType = ServiceType::all();
         return view('admin.harga', compact('user', 'satuan', 'kiloan', 'barang', 'servis', 'kategori', 'serviceType'));
+    }
+    public function getDataService(Request $request)
+    {
+        $columns = array( 
+                            0 =>'id', 
+                            1 =>'name', 
+                            2 =>'cost',
+                            4 => 'aksi',
+                        );
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        $search = $request->input('search.value');
+  
+        $totalData = ServiceType::count();
+
+        $query_data =ServiceType::where(function($query) use ($search)
+                    {
+                        if(!empty($search)){
+                            $query->where('name','LIKE',"%{$search}%")
+                              ->orWhere('cost', 'LIKE',"%{$search}%");
+                        }
+                        
+                    });
+
+        $all_data=$query_data->offset($start)->limit($limit)->orderBy($order,$dir)->get();
+
+        $totalFiltered = $query_data->count();
+
+        $data = array();
+       
+        $no=1;
+        if(!empty($all_data))
+        {
+            foreach ($all_data as $row)
+            {
+                $btn="";
+                
+                $btn.='<a href="#" class="badge badge-warning btn-update-cost" data-id="'.$row->id.'" data-toggle="modal" data-target="#updateCostModal">Ubah Harga</a>';
+                   
+                $nestedData['no'] = $no++;
+                $nestedData['id'] = $row->id;
+                $nestedData['name'] = $row->name;
+                $nestedData['cost'] = 'Rp. '.number_format($row->cost, 0, ',', '.');
+                $nestedData['aksi'] = $btn;
+                $data[] = $nestedData;
+
+            }
+        }
+          
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+            
+        return json_encode($json_data);
+    }
+
+
+    public function getDataKiloan(Request $request)
+    {
+        $columns = array( 
+                            0 =>'id', 
+                            1 =>'nm_brg', 
+                            2 =>'nm_service',
+                            3 =>'price',
+                            4 => 'aksi',
+                        );
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        $search = $request->input('search.value');
+  
+        $totalData = PriceList::where('category_id', 2)->count();
+
+        $query_data =DB::table('price_lists')
+                    ->select('price_lists.*','items.name as nm_brg','services.name as nm_service')
+                    ->join('items','items.id','price_lists.item_id')
+                    ->join('services','services.id','price_lists.service_id')
+                    ->where('price_lists.category_id', 2)
+                    ->where(function($query) use ($search)
+                    {
+                        if(!empty($search)){
+                            $query->where('price_lists.price','LIKE',"%{$search}%")
+                              ->orWhere('items.name', 'LIKE',"%{$search}%")
+                              ->orWhere('services.name', 'LIKE',"%{$search}%");
+                        }
+                        
+                    });
+
+        $all_data=$query_data->offset($start)->limit($limit)->orderBy($order,$dir)->get();
+
+        $totalFiltered = $query_data->count();
+
+        $data = array();
+       
+        $no=1;
+        if(!empty($all_data))
+        {
+            foreach ($all_data as $row)
+            {
+                $btn="";
+                
+                $btn.='<a href="#" class="badge badge-warning btn-ubah-harga" data-id="'.$row->id.'" data-toggle="modal" data-target="#ubahHargaModal">Ubah Harga</a>';
+                
+                //$btn.='<a href="'.url('admin/hapus-harga2').'" class="badge badge-warning-danger">Hapus</a>';
+                   
+                $nestedData['no'] = $no++;
+                $nestedData['id'] = $row->id;
+                $nestedData['nm_brg'] = $row->nm_brg;
+                $nestedData['nm_service'] = $row->nm_service;
+                $nestedData['price'] = number_format($row->price, 0, ',', '.');
+                $nestedData['aksi'] = $btn;
+                $data[] = $nestedData;
+
+            }
+        }
+          
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+            
+        return json_encode($json_data);
+    }
+
+    public function getDataSatuan(Request $request)
+    {
+                $columns = array( 
+                            0 =>'id', 
+                            1 =>'nm_brg', 
+                            2 =>'nm_service',
+                            3 =>'price',
+                            4 => 'aksi',
+                        );
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        $search = $request->input('search.value');
+  
+        $totalData = PriceList::where('category_id', 1)->count();
+
+        $query_data =DB::table('price_lists')
+                    ->select('price_lists.*','items.name as nm_brg','services.name as nm_service')
+                    ->join('items','items.id','price_lists.item_id')
+                    ->join('services','services.id','price_lists.service_id')
+                    ->where('price_lists.category_id', 1)
+                    ->where(function($query) use ($search)
+                    {
+                        if(!empty($search)){
+                            $query->where('price_lists.price','LIKE',"%{$search}%")
+                              ->orWhere('items.name', 'LIKE',"%{$search}%")
+                              ->orWhere('services.name', 'LIKE',"%{$search}%");
+                        }
+                        
+                    });
+
+        $all_data=$query_data->offset($start)->limit($limit)->orderBy($order,$dir)->get();
+
+        $totalFiltered = $query_data->count();
+
+        $data = array();
+       
+        $no=1;
+        if(!empty($all_data))
+        {
+            foreach ($all_data as $row)
+            {
+                $btn="";
+                
+                $btn.='<a href="#" class="badge badge-warning btn-ubah-harga" data-id="'.$row->id.'" data-toggle="modal" data-target="#ubahHargaModal">Ubah Harga</a>';
+                
+                //$btn.='<a href="'.url('admin/hapus-harga1').'" class="badge badge-warning-danger">Hapus</a>';
+                   
+                $nestedData['no'] = $no++;
+                $nestedData['id'] = $row->id;
+                $nestedData['nm_brg'] = $row->nm_brg;
+                $nestedData['nm_service'] = $row->nm_service;
+                $nestedData['price'] = number_format($row->price, 0, ',', '.');
+                $nestedData['aksi'] = $btn;
+                $data[] = $nestedData;
+
+            }
+        }
+          
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+            
+        return json_encode($json_data);
     }
 
     /**
@@ -489,6 +1036,90 @@ class Admin extends Controller
         return view('admin.members', compact('user', 'members'));
     }
 
+    public function getDataMembers(Request $request)
+    {
+
+        $columns = array( 
+                    0 =>'id', 
+                    1 =>'name', 
+                    2 =>'gender',
+                    3 =>'address',
+                    4 => 'phone_number',
+                    4 => 'point',
+                );
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        $search = $request->input('search.value');
+  
+        $totalData = User::where('role', 2)->count();
+
+        $query_data =User::where('role', 2)
+                    ->where(function($query) use ($search)
+                    {
+                        if(!empty($search)){
+                            $query->where('id','LIKE',"%{$search}%")
+                              ->orWhere('name', 'LIKE',"%{$search}%")
+                              ->orWhere('gender', 'LIKE',"%{$search}%")
+                              ->orWhere('address', 'LIKE',"%{$search}%")
+                              ->orWhere('phone_number', 'LIKE',"%{$search}%")
+                              ->orWhere('point', 'LIKE',"%{$search}%");
+                        }
+                        
+                    });
+
+        $all_data=$query_data->offset($start)->limit($limit)->orderBy($order,$dir)->get();
+
+        $totalFiltered = $query_data->count();
+
+        $data = array();
+       
+        $no=1;
+        if(!empty($all_data))
+        {
+            foreach ($all_data as $row)
+            {
+                   
+                $nestedData['no'] = $no++;
+                $nestedData['id'] = $row->id;
+                $nestedData['name'] = $row->name;
+                $nestedData['gender'] = $row->gender;
+                $nestedData['address'] = $row->address;
+                $nestedData['phone_number'] = $row->phone_number;
+                $nestedData['point'] = $row->point;
+                $data[] = $nestedData;
+
+            }
+        }
+
+
+          
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+            
+        return json_encode($json_data);
+    }
+
+
+    public function notifikasi()
+    {
+        $user = Auth::user();
+        return view('admin.notifikasi',compact('user'));
+    }
+
+    public function detailNotifikasi(Request $request)
+    {
+        $detail_notif = DB::table('notifications')->where('id', $request->input('id'))->get();
+        DB::table('notifications')->where('id', $request->input('id'))->update(['read' => 'Y']);
+        echo json_encode($detail_notif);
+    }
+
     /**
      * Fungsi untuk menampilkan halaman voucher
      */
@@ -497,6 +1128,82 @@ class Admin extends Controller
         $user = Auth::user();
         $vouchers = Voucher::all();
         return view('admin.voucher', compact('user', 'vouchers'));
+    }
+
+    public function getDataVoucher(Request $request)
+    {
+
+        $columns = array( 
+                    0 =>'id', 
+                    1 =>'name', 
+                    2 =>'point_need',
+                    3 =>'description',
+                );
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        $search = $request->input('search.value');
+  
+        $totalData = Voucher::count();
+
+        $query_data =Voucher::where(function($query) use ($search)
+                    {
+                        if(!empty($search)){
+                            $query->where('id','LIKE',"%{$search}%")
+                              ->orWhere('name', 'LIKE',"%{$search}%")
+                              ->orWhere('point_need', 'LIKE',"%{$search}%")
+                              ->orWhere('description', 'LIKE',"%{$search}%");
+                        }
+                        
+                    });
+
+        $all_data=$query_data->offset($start)->limit($limit)->orderBy($order,$dir)->get();
+
+        $totalFiltered = $query_data->count();
+
+        $data = array();
+       
+        $no=1;
+        if(!empty($all_data))
+        {
+            foreach ($all_data as $row)
+            {
+                $btn="";
+                if ($row->active_status != 0){
+                    $btn.='<div class="form-check">
+                        <input type="checkbox" class="form-check-input aktif-check" checked
+                            value="'.$row->id.'">
+                        <label class="form-check-label">Aktif</label>
+                    </div>';
+                }else{
+                    $btn.='<div class="form-check">
+                        <input type="checkbox" class="form-check-input aktif-check"
+                            value="'.$row->id.'">
+                        <label class="form-check-label">Aktif</label>
+                    </div>'; 
+                }
+                   
+                $nestedData['no'] = $no++;
+                $nestedData['id'] = $row->id;
+                $nestedData['name'] = $row->name;
+                $nestedData['point_need'] = $row->point_need;
+                $nestedData['description'] = $row->description;
+                $nestedData['aksi'] = $btn;
+                $data[] = $nestedData;
+
+            }
+        }
+
+        $json_data = array(
+                    "draw"            => intval($request->input('draw')),  
+                    "recordsTotal"    => intval($totalData),  
+                    "recordsFiltered" => intval($totalFiltered), 
+                    "data"            => $data   
+                    );
+            
+        return json_encode($json_data);
     }
 
     /**
