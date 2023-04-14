@@ -12,6 +12,11 @@
 <body>
     <div class="container">
         <div class="row">
+            <img src="{{ asset('img/logo.jpeg'); }}"
+            style="
+            position: absolute;
+            width: 200px;
+            margin: 15px;">
             <div class="col-12 text-center mt-5">
                 <h4>{{config('app.name')}}</h4>
                 <h5>Bukti Transaksi</h5>
@@ -93,8 +98,10 @@
         <div class="row mt-3">
             <div class="col-4 text-center">
                 <p>Bandar Lampung, {{date('d F Y')}}</p>
-                <br>
-                <br>
+                @php
+                    $link=url('/').'/validasi?kwitansi='.$id;
+                @endphp
+                {!! QrCode::size(150)->generate($link) !!}
                 <br>
                 <p>{{$dataTransaksi->admin->name}}</p>
             </div>

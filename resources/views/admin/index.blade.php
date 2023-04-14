@@ -56,6 +56,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h3 class="mb-3">Transaksi Berjalan (Priority Service): </h3>
+                        <div class="table-responsive">
                         <table class="table">
                             <thead class="thead-light">
                                 <tr>
@@ -81,10 +82,12 @@
                             </tbody>
                         </table>
                     </div>
+                    </div>
                 </div>
                 <div class="card">
                     <div class="card-body">
                         <h3 class="mb-3">Transaksi Berjalan: </h3>
+                        <div class="table-responsive">
                         <table class="table">
                             <thead class="thead-light">
                                 <tr>
@@ -109,6 +112,7 @@
                                 @endforeach
                             </tbody>
                         </table>
+                    </div>
                     </div>
                 </div>
             </div>

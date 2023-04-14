@@ -51,18 +51,18 @@
                         <form action="{{url('admin/tambah-harga')}}" method="post">
                             @csrf
                             <div class="row">
-                                <div class="col-6">
+                                <div class="col-lg-6">
                                     <div class="form-group">
                                         <label for="barang">Barang</label>
                                         <div class="row">
-                                            <div class="col-8">
+                                            <div class="col-7">
                                                 <select class="form-control" id="barang" name="barang">
                                                     @foreach ($barang as $item)
                                                     <option value="{{$item->id}}">{{$item->name}}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
-                                            <div class="col-4">
+                                            <div class="col-5">
                                                 <a id="tambah-barang" class="text-white btn btn-primary"
                                                     data-toggle="modal" data-target="#tambahBarangModal"><i
                                                         class="fas fa-plus"></i>
@@ -73,14 +73,14 @@
                                     <div class="form-group">
                                         <label for="servis">Servis</label>
                                         <div class="row">
-                                            <div class="col-8">
+                                            <div class="col-7">
                                                 <select class="form-control" id="servis" name="servis">
                                                     @foreach ($servis as $item)
                                                     <option value="{{$item->id}}">{{$item->name}}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
-                                            <div class="col-4">
+                                            <div class="col-5">
                                                 <a id="tambah-servis" class="text-white btn btn-primary"
                                                     data-toggle="modal" data-target="#tambahServisModal"><i
                                                         class="fas fa-plus"></i>
@@ -89,7 +89,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-6">
+                                <div class="col-lg-6">
                                     <div class="form-group">
                                         <label for="kategori">Kategori</label>
                                         <select class="form-control" id="kategori" name="kategori">
@@ -121,6 +121,7 @@
                         <div class="tab-content mt-3" id="myTabContent">
                             <div class="tab-pane fade show active" id="kiloan" role="tabpanel"
                                 aria-labelledby="kiloan-tab">
+                                <div class="table-responsive">
                                 <table id="tbl-kiloan" class="table dataTable dt-responsive nowrap" style="width:100%">
                                     <thead class="thead-light">
                                         <tr>
@@ -132,26 +133,12 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($kiloan as $item)
-                                        <tr>
-                                            <td>{{$loop->iteration}}</td>
-                                            <td>{{$item->item->name}}</td>
-                                            <td>{{$item->service->name}}</td>
-                                            <td>Rp {{number_format($item->price, 0, ',', '.')}} /kilo</td>
-                                            <td>
-                                                <a href="#" class="badge badge-warning btn-ubah-harga"
-                                                    data-id="{{$item->id}}" data-toggle="modal"
-                                                    data-target="#ubahHargaModal">Ubah Harga</a>
-                                                
-                                                    <a href="{{url('admin/hapus-harga2')}}"
-                                                            class="badge badge-warning-danger">Hapus</a>
-                                            </td>
-                                        </tr>
-                                        @endforeach
                                     </tbody>
                                 </table>
                             </div>
+                            </div>
                             <div class="tab-pane fade" id="satuan" role="tabpanel" aria-labelledby="satuan-tab">
+                                <div class="table-responsive">
                                 <table id="tbl-satuan" class="table dataTable dt-responsive nowrap" style="width:100%">
                                     <thead class="thead-light">
                                         <tr>
@@ -163,31 +150,16 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($satuan as $item)
-                                        <tr>
-                                            <td>{{$loop->iteration}}</td>
-                                            <td>{{$item->item->name}}</td>
-                                            <td>{{$item->service->name}}</td>
-                                            <td>Rp {{number_format($item->price, 0, ',', '.')}} /pcs</td>
-                                            <td>
-                                                <a href="#" class="badge badge-warning btn-ubah-harga"
-                                                    data-id="{{$item->id}}" data-toggle="modal"
-                                                    data-target="#ubahHargaModal">Ubah Harga</a>
-
-                                                    <a href="{{url('admin/hapus-harga1')}}"
-                                                            class="badge badge-warning-danger">Hapus</a>
-
-                                            </td>
-                                        </tr>
-                                        @endforeach
+                                       
                                     </tbody>
                                 </table>
+                            </div>
                             </div>
                         </div>
                         <hr>
                         <h5 class="mt-3">Daftar Tipe Service</h5>
                         <div class="tab-content mt-3" id="myTabContent">
-                            <table id="tbl-kiloan" class="table dataTable dt-responsive nowrap" style="width:100%">
+                            <table id="tbl-service" class="table dataTable dt-responsive nowrap" style="width:100%">
                                 <thead class="thead-light">
                                     <tr>
                                         <th>No</th>
@@ -197,19 +169,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($serviceType as $item)
-                                    <tr>
-                                        <td>{{$loop->iteration}}</td>
-                                        <td>{{$item->name}}</td>
-                                        <td>Rp {{number_format($item->cost, 0, ',', '.')}}</td>
-                                        <td>
-                                            <a href="#" class="badge badge-warning btn-update-cost"
-                                                data-id="{{$item->id}}" data-toggle="modal"
-                                                data-target="#updateCostModal">Ubah Harga</a>
-
-                                        </td>
-                                    </tr>
-                                    @endforeach
+                                   
                                 </tbody>
                             </table>
                         </div>
@@ -340,8 +300,73 @@
 <script src="{{asset('js/ajax-harga.js')}}"></script>
 <script type="text/javascript">
     $(document).ready(function () {
-        $('#tbl-satuan').DataTable();
-        $('#tbl-kiloan').DataTable();
+        $.ajaxSetup({
+              headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              }
+          });
+
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+    });
+
+    var tabel1 = $('#tbl-kiloan').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax":{
+                     "url": "{{ route('a.kiloan.list') }}",
+                     "dataType": "json",
+                     "type": "POST",
+                     "data":{ _token: "{{csrf_token()}}"}
+                   },
+            "columns": [
+                { "data": "no" },
+                { "data": "nm_brg" },
+                { "data": "nm_service" },
+                { "data": "price" },
+                { "data": "aksi" }
+            ]  
+
+        });
+
+      var tabel2 = $('#tbl-satuan').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax":{
+                     "url": "{{ route('a.satuan.list') }}",
+                     "dataType": "json",
+                     "type": "POST",
+                     "data":{ _token: "{{csrf_token()}}"}
+                   },
+            "columns": [
+                { "data": "no" },
+                { "data": "nm_brg" },
+                { "data": "nm_service" },
+                { "data": "price" },
+                { "data": "aksi" }
+            ]  
+
+        });
+
+          var tabel3 = $('#tbl-service').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax":{
+                     "url": "{{ route('a.service.list') }}",
+                     "dataType": "json",
+                     "type": "POST",
+                     "data":{ _token: "{{csrf_token()}}"}
+                   },
+            "columns": [
+                { "data": "no" },
+                { "data": "name" },
+                { "data": "cost" },
+                { "data": "aksi" }
+            ]  
+
+        });
     });
 </script>
 @endsection
+
+
