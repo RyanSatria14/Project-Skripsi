@@ -26,7 +26,7 @@
                         <h5>Daftar Saran atau Komplain</h5>
                         <div class="row">
                             <div class="col-sm-6">
-
+                                <div class="table-responsive">
                                 <table class="table">
                                     <thead class="thead-light">
                                         <tr>
@@ -58,6 +58,7 @@
                                         </tr>
                                     </tbody>
                                 </table>
+                            </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="form-group">

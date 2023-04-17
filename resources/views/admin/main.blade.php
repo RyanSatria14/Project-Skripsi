@@ -35,6 +35,26 @@
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
                 <!-- Notifications Dropdown Menu -->
+                @php
+                   
+                        $notif=DB::table('notifications')->where('untuk','admin')->where('read','N');
+                   
+                @endphp
+                <li class="nav-item dropdown">
+                    <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
+                        <i class="far fa-bell"></i>
+                        <span class="badge badge-warning navbar-badge">{{ $notif->count() }}</span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right" style="left: inherit; right: 0px;">
+                        <span class="dropdown-item dropdown-header">{{ $notif->count() }} Notifications</span>
+                        <div class="dropdown-divider"></div>
+                        <a href="{{ url('admin/notifikasi') }}" class="dropdown-item">
+                            <i class="fas fa-envelope mr-2"></i> {{ $notif->count() }} new messages
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="{{ url('admin/notifikasi') }}" class="dropdown-item dropdown-footer">See All Notifications</a>
+                    </div>
+                </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link" data-toggle="dropdown" href="#">
                         <img class="img-circle img-fit mr-1" width="25" height="25" src="{{asset('img/profile') . '/' . $user->profile_picture}}" alt="Foto Profil"> {{$user->name}}

@@ -23,6 +23,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
+                        <div class="table-responsive">
                         <table id="tbl-members" class="table dt-responsive nowrap" style="width: 100%">
                             <thead class="thead-light">
                                 <tr>
@@ -36,26 +37,10 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($members as $member)
-                                <tr>
-                                    <td>{{$loop->iteration}}</td>
-                                    <td>{{$member->id}}</td>
-                                    <td>{{$member->name}}</td>
-                                    <td>
-                                        @if ($member->gender == 'L')
-                                        Laki-Laki
-                                        @elseif ($member->gender == 'P')
-                                        Perempuan
-                                        @else
-                                        @endif
-                                    </td>
-                                    <td>{{$member->address}}</td>
-                                    <td>{{$member->phone_number}}</td>
-                                    <td>{{$member->point}}</td>
-                                </tr>
-                                @endforeach
+                                
                             </tbody>
                         </table>
+                    </div>
                     </div>
                 </div>
             </div>
@@ -71,7 +56,32 @@
 <script src="{{asset('vendor/datatables-responsive/js/responsive.bootstrap4.min.js')}}"></script>
 <script type="text/javascript">
     $(document).ready(function () {
-        $('#tbl-members').DataTable();
+         $.ajaxSetup({
+              headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              }
+          });
+
+        var tabel1 = $('#tbl-members').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax":{
+                     "url": "{{ route('a.member.list') }}",
+                     "dataType": "json",
+                     "type": "POST",
+                     "data":{ _token: "{{csrf_token()}}"}
+                   },
+            "columns": [
+                { "data": "no" },
+                { "data": "id" },
+                { "data": "name" },
+                { "data": "gender" },
+                { "data": "address" },
+                { "data": "phone_number" },
+                { "data": "point" }
+            ]  
+
+        });
     });
 </script>
 @endsection

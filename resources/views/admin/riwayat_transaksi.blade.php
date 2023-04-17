@@ -64,6 +64,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="mb-3">Transaksi Berjalan (Priority Service)</h4>
+                        <div class="table-responsive">
                         <table id="tbl-transaksi-priority" class="table dt-responsive nowrap" style="width: 100%">
                             <thead class="thead-light">
                                 <tr>
@@ -77,40 +78,9 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($ongoing_priority_transaction as $item)
-                                <tr>
-                                    <td>{{$item->id}}</td>
-                                    <td>{{date('d F Y', strtotime($item->created_at))}}</td>
-                                    <td>{{$item->member->name}}</td>
-                                    <td>
-                                        @if ($item->status_id == 3)
-                                        <span class="text-success">Selesai</span>
-                                        @else
-                                        <select name="" id="status" data-id="{{$item->id}}"
-                                            data-val="{{$item->status_id}}" class="select-status">
-                                            @foreach ($status as $s)
-                                            @if ($item->status_id == $s->id)
-                                            <option selected value="{{$s->id}}">{{$s->name}}</option>
-                                            @else
-                                            <option value="{{$s->id}}">{{$s->name}}</option>
-                                            @endif
-                                            @endforeach
-                                        </select>
-                                        @endif
-                                    </td>
-                                    <td>{{$item->service_cost}}</td>
-                                    <td>Rp {{number_format($item->total, 0, ',', '.')}}</td>
-                                    
-                                    <td>
-                                        <a href="#" class="badge badge-info btn-detail" data-toggle="modal"
-                                            data-target="#detailTransaksiModal" data-id="{{$item->id}}">Detail</a>
-                                        <a href="{{url('admin/cetak-transaksi') . '/' . $item->id}}"
-                                            class="badge badge-primary" target="_blank">Cetak</a>
-                                    </td>
-                                </tr>
-                                @endforeach
                             </tbody>
                         </table>
+                    </div>
                     </div>
                 </div>
             </div>
@@ -120,6 +90,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="mb-3">Transaksi Berjalan</h4>
+                        <div class="table-responsive">
                         <table id="tbl-transaksi-belum" class="table dt-responsive nowrap" style="width: 100%">
                             <thead class="thead-light">
                                 <tr>
@@ -133,40 +104,10 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($ongoing_transaction as $item)
-                                <tr>
-                                    <td>{{$item->id}}</td>
-                                    <td>{{date('d F Y', strtotime($item->created_at))}}</td>
-                                    <td>{{$item->member->name}}</td>
-                                    <td>
-                                        @if ($item->status_id == 3)
-                                        <span class="text-success">Selesai</span>
-                                        @else
-                                        <select name="" id="status" data-id="{{$item->id}}"
-                                            data-val="{{$item->status_id}}" class="select-status">
-                                            @foreach ($status as $s)
-                                            @if ($item->status_id == $s->id)
-                                            <option selected value="{{$s->id}}">{{$s->name}}</option>
-                                            @else
-                                            <option value="{{$s->id}}">{{$s->name}}</option>
-                                            @endif
-                                            @endforeach
-                                        </select>
-                                        @endif
-                                    </td>
-                                    <td>{{$item->service_cost}}</td>
-                                    <td>Rp {{number_format($item->total, 0, ',', '.')}}</td>
-                                    
-                                    <td>
-                                        <a href="#" class="badge badge-info btn-detail" data-toggle="modal"
-                                            data-target="#detailTransaksiModal" data-id="{{$item->id}}">Detail</a>
-                                        <a href="{{url('admin/cetak-transaksi') . '/' . $item->id}}"
-                                            class="badge badge-primary" target="_blank">Cetak</a>
-                                    </td>
-                                </tr>
-                                @endforeach
+                               
                             </tbody>
                         </table>
+                    </div>
                     </div>
                 </div>
             </div>
@@ -176,6 +117,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="mb-3">Transaksi Selesai</h4>
+                        <div class="table-responsive">
                         <table id="tbl-transaksi-selesai" class="table dt-responsive nowrap" style="width: 100%">
                             <thead class="thead-light">
                                 <tr>
@@ -189,39 +131,10 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($finished_transaction as $item)
-                                <tr>
-                                    <td>{{$item->id}}</td>
-                                    <td>{{date('d F Y', strtotime($item->created_at))}}</td>
-                                    <td>{{$item->member->name}}</td>
-                                    <td>
-                                        @if ($item->status_id == 3)
-                                        <span class="text-success">Selesai</span>
-                                        @else
-                                        <select name="" id="status" data-id="{{$item->id}}"
-                                            data-val="{{$item->status_id}}" class="select-status">
-                                            @foreach ($status as $s)
-                                            @if ($item->status_id == $s->id)
-                                            <option selected value="{{$s->id}}">{{$s->name}}</option>
-                                            @else
-                                            <option value="{{$s->id}}">{{$s->name}}</option>
-                                            @endif
-                                            @endforeach
-                                        </select>
-                                        @endif
-                                    </td>
-                                    <td>{{$item->service_cost}}</td>
-                                    <td>Rp {{number_format($item->total, 0, ',', '.')}}</td>
-                                    <td>
-                                        <a href="#" class="badge badge-info btn-detail" data-toggle="modal"
-                                            data-target="#detailTransaksiModal" data-id="{{$item->id}}">Detail</a>
-                                        <a href="{{url('admin/cetak-transaksi') . '/' . $item->id}}"
-                                            class="badge badge-primary" target="_blank">Cetak</a>
-                                    </td>
-                                </tr>
-                                @endforeach
+                                
                             </tbody>
                         </table>
+                    </div>
                     </div>
                 </div>
             </div>
@@ -242,6 +155,7 @@
             </div>
             <div class="modal-body">
                 <h5>ID Transaksi: <span id="id-transaksi-detail"></span></h5>
+                <div class="table-responsive">
                 <table id="tbl-detail-transaksi" class="table dt-responsive nowrap" style="width: 100%">
                     <thead class="thead-light">
                         <tr>
@@ -257,6 +171,7 @@
                     <tbody id="tbl-ajax">
                     </tbody>
                 </table>
+            </div>
                 <h5>Tipe Servis: <span id="service-type"></span></h5>
                 <h5>Dibayar: <span id="payment-amount"></span></h5>
             </div>
@@ -276,9 +191,77 @@
 <script src="{{asset('js/ajax.js')}}"></script>
 <script type="text/javascript">
     $(document).ready(function () {
-        $('#tbl-transaksi-selesai').DataTable();
-        $('#tbl-transaksi-belum').DataTable();
-        $('#tbl-transaksi-priority').DataTable();
+        var month ="{{ request()->get('month') }}";
+        var year ="{{ request()->get('year') }}";
+
+        $.ajaxSetup({
+              headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              }
+          });
+
+        var tabel1 = $('#tbl-transaksi-priority').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax":{
+                     "url": "{{ route('a.transaksi.priority') }}?month="+month+"&year="+year+"",
+                     "dataType": "json",
+                     "type": "POST",
+                     "data":{ _token: "{{csrf_token()}}"}
+                   },
+            "columns": [
+                { "data": "id" },
+                { "data": "created_at" },
+                { "data": "nm_member" },
+                { "data": "stt" },
+                { "data": "service_cost" },
+                { "data": "total" },
+                { "data": "aksi" }
+            ]  
+
+        });
+
+        var tabel2 = $('#tbl-transaksi-belum').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax":{
+                     "url": "{{ route('a.transaksi.berjalan') }}?month="+month+"&year="+year+"",
+                     "dataType": "json",
+                     "type": "POST",
+                     "data":{ _token: "{{csrf_token()}}"}
+                   },
+            "columns": [
+                { "data": "id" },
+                { "data": "created_at" },
+                { "data": "nm_member" },
+                { "data": "stt" },
+                { "data": "service_cost" },
+                { "data": "total" },
+                { "data": "aksi" }
+            ]  
+
+        });
+
+        var tabel3 = $('#tbl-transaksi-selesai').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax":{
+                     "url": "{{ route('a.transaksi.selesai') }}?month="+month+"&year="+year+"",
+                     "dataType": "json",
+                     "type": "POST",
+                     "data":{ _token: "{{csrf_token()}}"}
+                   },
+            "columns": [
+                { "data": "id" },
+                { "data": "created_at" },
+                { "data": "nm_member" },
+                { "data": "stt" },
+                { "data": "service_cost" },
+                { "data": "total" },
+                { "data": "aksi" }
+            ]  
+
+        });
     });
 </script>
 @endsection

@@ -112,6 +112,7 @@
                                 </div>
                             </div>
                         </form>
+                        <div class="table-responsive">
                         <table id="tbl-input-transaksi" class="table mt-2 dt-responsive nowrap" style="width: 100%">
                             <thead class="thead-light">
                                 <tr>
@@ -144,6 +145,7 @@
                                 @endif
                             </tbody>
                         </table>
+                        </div>
                         @if (isset($transaksi))
                         <button id="btn-bayar" class="btn btn-success" data-toggle="modal"
                             data-target="#bayarModal">Bayar</button>
