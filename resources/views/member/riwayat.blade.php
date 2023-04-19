@@ -23,6 +23,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
+                        <div class="table-responsive">
                         <table id="tbl-riwayat" class="table dataTable dt-responsive nowrap" style="width:100%">
                             <thead class="thead-light">
                                 <tr>
@@ -33,25 +34,9 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($transaksi as $item)
-                                <tr>
-                                    <td>{{$loop->iteration}}</td>
-                                    <td>{{date('d F Y', strtotime($item->created_at))}}</td>
-                                    <td>
-                                        @if ($item->status_id != '3')
-                                        <span class="text-warning">{{$item->status->name}}</span>
-                                        @else
-                                        <span class="text-success">{{$item->status->name}}</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <a href="{{url('member/transaksi') . '/' . $item->id}}"
-                                            class="badge badge-primary">Lihat Detail ></a>
-                                    </td>
-                                </tr>
-                                @endforeach
                             </tbody>
                         </table>
+                    </div>
                     </div>
                 </div>
             </div>
@@ -68,7 +53,29 @@
 <script src="{{asset('vendor/datatables-responsive/js/responsive.bootstrap4.min.js')}}"></script>
 <script type="text/javascript">
     $(document).ready(function () {
-        $('#tbl-riwayat').DataTable();
+        $.ajaxSetup({
+              headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              }
+          });
+
+        var tabel1 = $('#tbl-riwayat').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax":{
+                     "url": "{{ route('m.transaksi.list') }}",
+                     "dataType": "json",
+                     "type": "POST",
+                     "data":{ _token: "{{csrf_token()}}"}
+                   },
+            "columns": [
+                { "data": "no" },
+                { "data": "created_at" },
+                { "data": "stt" },
+                { "data": "aksi" }
+            ]  
+
+        });
     });
 </script>
 @endsection

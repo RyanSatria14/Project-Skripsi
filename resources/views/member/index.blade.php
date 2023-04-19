@@ -47,6 +47,7 @@
                         <h3 class="my-3 text-center">Transaksi Terakhir</h3>
                     </div>
                     <div class="card-body">
+                        <div class="table-responsive">
                         <table class="table">
                             <thead class="thead-light">
                                 <tr>
@@ -76,6 +77,7 @@
                                 @endforeach
                             </tbody>
                         </table>
+                    </div>
                     </div>
                 </div>
             </div>

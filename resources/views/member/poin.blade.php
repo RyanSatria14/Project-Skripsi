@@ -48,6 +48,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h4>Tukarkan poin anda dengan voucher:</h4>
+                        <div class="table-responsive">
                         <table class="table">
                             <thead class="thead-light">
                                 <tr>
@@ -73,6 +74,7 @@
                                 @endforeach
                             </tbody>
                         </table>
+                    </div>
                     </div>
                 </div>
             </div>

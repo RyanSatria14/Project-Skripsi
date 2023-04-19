@@ -25,6 +25,7 @@
                     <div class="card-body">
                         <h3>ID Transaksi: {{$id_transaksi}}</h3>
                         <hr>
+                        <div class="table-responsive">
                         <table id="tbl-detail" class="table dataTable dt-responsive nowrap" style="width:100%">
                             <thead class="thead-light">
                                 <tr>
@@ -51,13 +52,20 @@
                                 @endforeach
                             </tbody>
                         </table>
+                    </div>
                         <hr>
                         <h5>Tipe Servis: {{$transaksi[0]->transaction->service_type->name}}</h5>                    
                         <h5>Biaya Servis: {{$transaksi[0]->transaction->service_cost}}</h5>
                         <h5>Potongan: {{$transaksi[0]->transaction->discount}}</h5>
                         <hr>
                         <h4>Total Biaya: Rp {{number_format($transaksi[0]->transaction->total, 0, ',', '.')}} </h4>
-                        <h4>Dibayar: Rp {{number_format($transaksi[0]->transaction->payment_amount, 0, ',', '.')}} </h4>                       
+                        <h4>Dibayar: Rp {{number_format($transaksi[0]->transaction->payment_amount, 0, ',', '.')}} </h4>  
+                        <p>
+                        @php
+                        $link=url('/').'/validasi?kwitansi='.$id_transaksi;
+                        @endphp
+                        {!! QrCode::size(150)->generate($link) !!}
+                        </p>                     
                     </div>
                 </div>
             </div>
@@ -83,4 +91,31 @@
         });
     });
 </script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $.ajaxSetup({
+              headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              }
+          });
+
+        var tabel1 = $('#tbl-riwayat').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax":{
+                     "url": "{{ route('m.transaksi.list') }}",
+                     "dataType": "json",
+                     "type": "POST",
+                     "data":{ _token: "{{csrf_token()}}"}
+                   },
+            "columns": [
+                { "data": "no" },
+                { "data": "created_at" },
+                { "data": "stt" },
+                { "data": "aksi" }
+            ]  
+
+        });
+    });
 @endsection

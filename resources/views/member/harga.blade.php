@@ -37,6 +37,7 @@
                         <div class="tab-content mt-3" id="myTabContent">
                             <div class="tab-pane fade show active" id="kiloan" role="tabpanel"
                                 aria-labelledby="kiloan-tab">
+                                <div class="table-responsive">
                                 <table id="tbl-kiloan" class="table dataTable dt-responsive nowrap" style="width:100%">
                                     <thead class="thead-light">
                                         <tr>
@@ -47,19 +48,12 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($kiloan as $k)
-                                        <tr>
-                                            <td>{{$loop->iteration}}</td>
-                                            <td>{{$k->item->name}}</td>
-                                            <td>{{$k->service->name}}</td>
-                                            <td>Rp {{number_format($k->price, 0, ',', '.')}}</td>
-                                            
-                                        </tr>
-                                        @endforeach
                                     </tbody>
                                 </table>
                             </div>
+                            </div>
                             <div class="tab-pane fade" id="satuan" role="tabpanel" aria-labelledby="satuan-tab">
+                                <div class="table-responsive">
                                 <table id="tbl-satuan" class="table dataTable dt-responsive nowrap" style="width:100%">
                                     <thead class="thead-light">
                                         <tr>
@@ -70,17 +64,9 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($satuan as $s)
-                                        <tr>
-                                            <td>{{$loop->iteration}}</td>
-                                            <td>{{$s->item->name}}</td>
-                                            <td>{{$s->service->name}}</td>
-                                            <td>Rp {{number_format($s->price, 0, ',', '.')}}</td>
-                                            
-                                        </tr>
-                                        @endforeach
                                     </tbody>
                                 </table>
+                            </div>
                             </div>
                         </div>
                     </div>
@@ -89,7 +75,8 @@
                     <div class="card-body">
                         <h5 class="mt-3">Daftar Tipe Service</h5>
                         <div class="tab-content mt-3" id="myTabContent">
-                            <table id="tbl-kiloan" class="table dataTable dt-responsive nowrap" style="width:100%">
+                            <div class="table-responsive">
+                            <table id="tbl-service" class="table dataTable dt-responsive nowrap" style="width:100%">
                                 <thead class="thead-light">
                                     <tr>
                                         <th>No</th>
@@ -98,16 +85,10 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($serviceType as $item)
-                                    <tr>
-                                        <td>{{$loop->iteration}}</td>
-                                        <td>{{$item->name}}</td>
-                                        <td>Rp {{number_format($item->cost, 0, ',', '.')}}</td>
-                                        
-                                    </tr>
-                                    @endforeach
+                                
                                 </tbody>
                             </table>
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -126,8 +107,68 @@
 <script src="{{asset('vendor/datatables-responsive/js/responsive.bootstrap4.min.js')}}"></script>
 <script type="text/javascript">
     $(document).ready(function () {
-        $('#tbl-satuan').DataTable();
-        $('#tbl-kiloan').DataTable();
+        $.ajaxSetup({
+              headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              }
+          });
+
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+    });
+
+    var tabel1 = $('#tbl-kiloan').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax":{
+                     "url": "{{ route('m.kiloan.list') }}",
+                     "dataType": "json",
+                     "type": "POST",
+                     "data":{ _token: "{{csrf_token()}}"}
+                   },
+            "columns": [
+                { "data": "no" },
+                { "data": "nm_brg" },
+                { "data": "nm_service" },
+                { "data": "price" }
+            ]  
+
+        });
+
+      var tabel2 = $('#tbl-satuan').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax":{
+                     "url": "{{ route('m.satuan.list') }}",
+                     "dataType": "json",
+                     "type": "POST",
+                     "data":{ _token: "{{csrf_token()}}"}
+                   },
+            "columns": [
+                { "data": "no" },
+                { "data": "nm_brg" },
+                { "data": "nm_service" },
+                { "data": "price" }
+            ]  
+
+        });
+
+          var tabel3 = $('#tbl-service').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax":{
+                     "url": "{{ route('m.service.list') }}",
+                     "dataType": "json",
+                     "type": "POST",
+                     "data":{ _token: "{{csrf_token()}}"}
+                   },
+            "columns": [
+                { "data": "no" },
+                { "data": "name" },
+                { "data": "cost" }
+            ]  
+
+        });
     });
 </script>
 @endsection

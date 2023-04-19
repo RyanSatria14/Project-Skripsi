@@ -61,6 +61,7 @@
                             </div>
                             <div class="col-md-6">
                                 <h5>Telepon atau Chat:</h5>
+                                <div class="table-responsive">
                                 <table class="table">
                                     <tbody>
                                         <tr>
@@ -81,6 +82,7 @@
                                     </tbody>
                                 </table>
                             </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -89,6 +91,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h5>Riwayat Saran atau Komplain</h5>
+                        <div class="table-responsive">
                         <table class="table">
                             <thead class="thead-light">
                                 <tr>
@@ -97,8 +100,10 @@
                                     <th>Tipe</th>
                                     <th>Isi</th>
                                     <th>Balasan</th>
+                                    <th>Aksi</th>
                                 </tr>
                             </thead>
+                            
                             <tbody>
                                 @foreach ($saran_komplain as $item)
                                 <tr>
@@ -116,15 +121,24 @@
                                     <td class="text-danger">
                                         Belum ada balasan
                                     </td>
+                                    <td>
+                                    <a href="{{url('member/hapus-saran') . '/' . $item['id']}}"
+                                            class="badge btn btn-danger">Hapus</a>
+                                    </td>
                                     @else
                                     <td>
                                         {{$item->reply}}
+                                    </td>
+                                    <td>
+                                    <a href="{{url('member/hapus-saran') . '/' . $item['id']}}"
+                                            class="badge btn btn-danger">Hapus</a>
                                     </td>
                                     @endif
                                 </tr>
                                 @endforeach
                             </tbody>
                         </table>
+                    </div>
                     </div>
                 </div>
             </div>

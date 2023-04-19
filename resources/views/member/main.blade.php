@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-<link rel="shortcut icon" type="image/png" href="{{asset('img/landing/header.png')}}" />
+<link rel="shortcut icon" type="image/png" href="{{asset('img/landing/logo.jpg')}}" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
@@ -40,6 +40,26 @@
                         <i class="mr-2 fas fa-star"></i>Tukar Poin
                     </a>
                 </li>
+                 @php
+                   
+                        $notif=DB::table('notifications')->where('untuk',auth()->user()->id)->where('read','N');
+                  
+                @endphp
+                <li class="nav-item dropdown">
+                    <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
+                        <i class="far fa-bell"></i>
+                        <span class="badge badge-warning navbar-badge">{{ $notif->count() }}</span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right" style="left: inherit; right: 0px;">
+                        <span class="dropdown-item dropdown-header">{{ $notif->count() }} Notifications</span>
+                        <div class="dropdown-divider"></div>
+                        <a href="{{ url('member/notifikasi') }}" class="dropdown-item">
+                            <i class="fas fa-envelope mr-2"></i> {{ $notif->count() }} new messages
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="{{ url('member/notifikasi') }}" class="dropdown-item dropdown-footer">See All Notifications</a>
+                    </div>
+                </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link" data-toggle="dropdown" href="#">
                         <img class="img-circle img-fit mr-1" width="25" height="25"
@@ -61,9 +81,17 @@
 
         <!-- Main Sidebar Container -->
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
-            <!-- Brand Logo -->
-            <a href="" class="brand-link mt-2">
-                <i class="fas fa-tshirt brand-image mt-1 ml-3"></i>
+             <!-- Brand Logo -->
+             <a href="" class="brand-link mt-2">
+            <img src="{{ asset('img/landing/logo.jpg'); }}"
+            style="
+            position: absolute;
+            width: 50px;
+            margin: -2px;">
+                <i class="fas fa-tshirt brand-image mt-0 ml-0">
+                
+                </i>
+                
                 <h4 class="brand-text text-center">{{config('app.name')}}</h4>
             </a>
 
