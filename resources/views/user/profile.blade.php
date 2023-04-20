@@ -97,9 +97,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="alamat">Alamat</label>
-                                        <input type="text" class="form-control @error('alamat') is-invalid @enderror"
-                                            id="alamat" name="alamat" placeholder="Masukkan alamat anda"
-                                            value="{{$user->address}}" required>
+                                            <textarea class="form-control @error('alamat') is-invalid @enderror" name="alamat">{{$user->address}}</textarea>
                                         @error('alamat')
                                         <div class="invalid-feedback">
                                             {{$message}}
