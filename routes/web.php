@@ -77,8 +77,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['language', 'islogin']], fun
     Route::get('laporanview', 'Admin@laporanview');
     Route::get('get-service-type', [Admin::class, 'getServiceType']);
     Route::patch('update-service-type', [Admin::class, 'updateServiceType']);
-    Route::get('hapus-harga1', 'Admin@hapusHargaSatuan');
-    Route::get('hapus-harga2', 'Admin@hapusHargaKiloan');
+    Route::get('/hapus-harga1/{id}', 'Admin@hapusHargaSatuan');
+    Route::get('/hapus-harga2/{id}', 'Admin@hapusHargaKiloan');
+    Route::get('/hapus-voucher/{id}', 'Admin@hapusVoucher');
 });
 
 //Member routes
@@ -97,6 +98,7 @@ Route::group(['prefix' => 'member', 'middleware' => ['language', 'islogin']], fu
     Route::post('kirimsaran', 'Member@kirimSaranKomplain');
     Route::get('notifikasi', 'Member@notifikasi');
     Route::post('detail-notifikasi', 'Member@detailNotifikasi');
+    Route::get('/hapus-saran/{id}', 'Member@hapusSaran');
 });
 
 // User profile routes

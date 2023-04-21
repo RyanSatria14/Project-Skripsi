@@ -817,7 +817,7 @@ class Admin extends Controller
                 
                 $btn.='<a href="#" class="badge badge-warning btn-ubah-harga" data-id="'.$row->id.'" data-toggle="modal" data-target="#ubahHargaModal">Ubah Harga</a>';
                 
-                //$btn.='<a href="'.url('admin/hapus-harga2').'" class="badge badge-warning-danger">Hapus</a>';
+                $btn.='<a href="'.url('admin/hapus-harga2').'/'.$row->id.   '" class="badge badge-warning-danger">Hapus</a>';
                    
                 $nestedData['no'] = $no++;
                 $nestedData['id'] = $row->id;
@@ -888,7 +888,7 @@ class Admin extends Controller
                 
                 $btn.='<a href="#" class="badge badge-warning btn-ubah-harga" data-id="'.$row->id.'" data-toggle="modal" data-target="#ubahHargaModal">Ubah Harga</a>';
                 
-                //$btn.='<a href="'.url('admin/hapus-harga1').'" class="badge badge-warning-danger">Hapus</a>';
+                $btn.='<a href="'.url('admin/hapus-harga1').'/'.$row->id.'" class="badge badge-warning-danger">Hapus</a>';
                    
                 $nestedData['no'] = $no++;
                 $nestedData['id'] = $row->id;
@@ -963,20 +963,20 @@ class Admin extends Controller
 
     
 
-    public function hapusHargaSatuan(Request $request)
+    public function hapusHargaSatuan($id, Request $request)
     {
     $user = Auth::user();
-    $satuan = PriceList::where('category_id', 1)->first();
-    $satuan->delete();
+    $satuan = PriceList::where('id', $id)->delete();
+    
     return redirect('admin/harga')->with('success', 'Harga berhasil dihapus!');
     }
     
     
-    public function hapusHargaKiloan(Request $request)
+    public function hapusHargaKiloan($id, Request $request)
     {
     $user = Auth::user();
-    $kiloan = PriceList::where('category_id', 2)->first();
-    $kiloan->delete();
+    $kiloan = PriceList::where('id', $id)->delete();
+    
     return redirect('admin/harga')->with('success', 'Harga berhasil dihapus!');
     }
 
@@ -1130,6 +1130,19 @@ class Admin extends Controller
         return view('admin.voucher', compact('user', 'vouchers'));
     }
 
+     /**
+     * Fungsi untuk menghapus Data voucher
+     */
+
+    public function hapusVoucher($id, Request $request)
+    {
+        $user = Auth::user();
+        $vouchers = Voucher::where('id', $id)->delete();
+        return view('admin.voucher', compact('user', 'vouchers'));
+    }
+
+    
+
     public function getDataVoucher(Request $request)
     {
 
@@ -1184,6 +1197,8 @@ class Admin extends Controller
                         <label class="form-check-label">Aktif</label>
                     </div>'; 
                 }
+
+                //$btn.='<a href="'.url('admin/hapus-voucher').'/'.$row->id.   '" class="badge btn btn-danger">Hapus</a>';
                    
                 $nestedData['no'] = $no++;
                 $nestedData['id'] = $row->id;
@@ -1283,7 +1298,20 @@ class Admin extends Controller
     {
         $complaint_suggestion = ComplaintSuggestion::where('id', $request->input('id'))->first();
         $complaint_suggestion->reply = $request->input('balasan');
+
+
+        
+        $notif = new Notifikasi([
+            'jd' => "Saran/Komplain Dibalas Admin",
+            'ket' => "Buka Saran/Komplain anda dibalas",
+            'read'=>'N',
+            'untuk'=>'2',
+        ]);
+
+        $notif->save();
+
         $complaint_suggestion->save();
+        
     }
 
     /**

@@ -403,6 +403,15 @@ class Member extends Controller
         return view('member.saran', compact('user', 'saran_komplain'));
     }
 
+
+    public function hapusSaran($id, Request $request)
+    {
+    $user = Auth::user();
+    $hapus_saran = ComplaintSuggestion::where('id',$id)->delete();
+
+    return redirect('member/saran')->with('success', 'Saran berhasil dihapus!');
+    }
+
     /**
      * Fungsi untuk mengirimkan saran komplain
      */
